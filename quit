@@ -15,8 +15,10 @@ done
 QUIT_PROJECT_ROOT="$(cd "$(dirname "$_quit_script")" && pwd -P)"
 unset _quit_script _quit_dir _quit_link
 
+# Shared helpers: "${HOME}/software/common-lib/README.md"
 # shellcheck disable=SC1091
 source "${HOME}/lib/common.sh"
+# This command: "${HOME}/software/quit/README.md"
 # shellcheck disable=SC1091
 source "${QUIT_PROJECT_ROOT}/lib/quit.sh"
 
