@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Quit targets: each argument is classified as a macOS app vs a plain process, then escalated.
+# Installed under ~/software/quit; symlink this file from ~/bin/quit.
+
+set -euo pipefail
+
+# Resolve project root when invoked via symlink (e.g. ~/bin/quit -> here).
+_quit_script="${BASH_SOURCE[0]}"
+while [[ -L "$_quit_script" ]]; do
+  _quit_dir="$(cd "$(dirname "$_quit_script")" && pwd -P)"
+  _quit_link="$(readlink "$_quit_script")"
+  [[ "$_quit_link" != /* ]] && _quit_link="${_quit_dir}/${_quit_link}"
+  _quit_script="$_quit_link"
+done
+QUIT_PROJECT_ROOT="$(cd "$(dirname "$_quit_script")" && pwd -P)"
+unset _quit_script _quit_dir _quit_link
+
+# shellcheck disable=SC1091
+source "${HOME}/lib/common.sh"
+# shellcheck disable=SC1091
+source "${QUIT_PROJECT_ROOT}/lib/quit.sh"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: quit <target> [<target>...]
+
+Each target is classified on its own (you do not need to type ".app"):
+
+  Application (AppleScript, then signals) if any of these hold:
+    • It is a path to an existing .app bundle directory
+    • A bundle named "<target>.app" exists under /Applications, ~/Applications,
+      /System/Applications, or /Applications/Utilities
+    • A process with that exact name is running and its main binary lives in such a bundle
+
+  Otherwise it is treated as a plain process:
+    SIGINT → SIGTERM → SIGKILL (basename is used for paths)
+
+Examples:
+  quit Safari node "/Applications/Slack.app"
+EOF
+  exit 0
+}
+
+quit_one() {
+  local arg="$1"
+  quit_resolve_target "$arg"
+  echo >&2
+  if [[ "$QUIT_KIND" == app ]]; then
+    info "Application — $QUIT_APP_NAME ($arg)"
+    quit_app_graduated "$QUIT_APP_NAME"
+  else
+    info "Process — $QUIT_PROC_NAME ($arg)"
+    quit_process_graduated "$QUIT_PROC_NAME"
+  fi
+}
+
+if [[ $# -eq 0 ]] || [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+  usage
+fi
+
+rc=0
+for target in "$@"; do
+  quit_one "$target" || rc=1
+done
+exit "$rc"
