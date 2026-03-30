@@ -6,7 +6,7 @@ macOS helper to stop applications and command-line processes with **graduated es
 
 - macOS
 - Bash
-- Shared logging helpers in **`$HOME/lib/common.sh`** (`info`, `warn`, `ok`, `err`, `die`, and terminal colors)
+- Shared logging helpers in **`$HOME/lib/common.sh`** (from the [`common-lib`](../common-lib/) project; `~/lib` is usually a symlink there)
 
 ## Install
 
@@ -67,7 +67,7 @@ Typical installs run apps from `/Applications`, not directly from Homebrew Cask 
 |------|------|
 | `quit` | Executable entry (symlink from `~/bin` recommended) |
 | `lib/quit.sh` | Classification and escalation (sourced by `quit`) |
-| `$HOME/lib/common.sh` | Colors and log helpers (not part of this repo) |
+| `$HOME/lib/common.sh` | Colors and log helpers ([`common-lib`](../common-lib/)) |
 
 ## License
 
