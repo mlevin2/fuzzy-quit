@@ -1,5 +1,7 @@
 # quit
 
+See **`$HOME/software/README.md`** for how this fits under `~/software` and how **`$HOME/lib`** stays the canonical path for shared shell code.
+
 macOS helper to stop applications and command-line processes with **graduated escalation**. Each argument is classified independently as either a **GUI application** (`.app` bundle) or a **plain process**, then the appropriate ladder runs.
 
 ## Requirements
