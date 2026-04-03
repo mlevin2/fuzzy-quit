@@ -43,7 +43,7 @@ For each target, in order:
 
 1. **Bundle directory** — If the path exists and is a directory whose name ends in `.app`, it is treated as an application (AppleScript name = basename without `.app`).
 2. **Regular executable file** — If the path exists, is a normal file, is executable, and is not an `.app` folder, it is treated as a process (`killall` uses the basename, e.g. `/opt/homebrew/bin/node` → `node`).
-3. **Known install locations** — If `<name>.app` exists (case-insensitive) under `/Applications`, `~/Applications`, `/System/Applications`, or `/Applications/Utilities`, the target is treated as that application (so `quit safari` works without typing `.app` or matching case). The correct application name is resolved from the filesystem.
+3. **Known install locations** — If `<name>.app` exists (case-insensitive) under `/Applications`, `~/Applications`, `/System/Applications`, or `/Applications/Utilities` — including up to three levels deep (e.g. `/Applications/Setapp/Bartender.app`) — the target is treated as that application (so `quit safari` or `quit bartender` works without typing `.app` or matching case). Bundles nested inside other `.app` packages are ignored. The correct application name is resolved from the filesystem.
 4. **Running process from a standard bundle** — If a process with that name (`pgrep -ix`, case-insensitive) is running and `lsof` shows a binary under `…/Something.app/Contents/MacOS/…`, and walking up finds a bundle in one of the locations above, the target is treated as that application.
 5. **Otherwise** — Treated as a process name. If a matching process is running (`pgrep -ix`), the correct-case name is resolved from the process table; otherwise the input is used as-is.
 
