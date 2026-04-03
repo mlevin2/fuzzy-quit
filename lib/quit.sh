@@ -12,7 +12,9 @@ quit_lookup_bundle_path() {
     "/System/Applications" \
     "/Applications/Utilities"
   do
-    result=$(find "$d" -maxdepth 1 -iname "${name}.app" -print -quit 2>/dev/null)
+    # -maxdepth 3 to find apps in subdirectories (e.g. /Applications/Setapp/…)
+    # -not -path to skip bundles nested inside another .app
+    result=$(find "$d" -maxdepth 3 -iname "${name}.app" -not -path "*/*.app/*" -print -quit 2>/dev/null)
     if [[ -n "$result" ]]; then
       printf '%s' "$result"
       return 0
