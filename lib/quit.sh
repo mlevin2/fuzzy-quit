@@ -5,15 +5,16 @@
 quit_lookup_bundle_path() {
   local name="${1%.app}"
   [[ -z "$name" ]] && return 1
-  local d
+  local d result
   for d in \
-    "/Applications/${name}.app" \
-    "${HOME}/Applications/${name}.app" \
-    "/System/Applications/${name}.app" \
-    "/Applications/Utilities/${name}.app"
+    "/Applications" \
+    "${HOME}/Applications" \
+    "/System/Applications" \
+    "/Applications/Utilities"
   do
-    if [[ -d "$d" ]]; then
-      printf '%s' "$d"
+    result=$(find "$d" -maxdepth 1 -iname "${name}.app" -print -quit 2>/dev/null)
+    if [[ -n "$result" ]]; then
+      printf '%s' "$result"
       return 0
     fi
   done
@@ -95,7 +96,7 @@ quit_resolve_target() {
     return 0
   fi
 
-  if pid=$(pgrep -x "$name" 2>/dev/null | head -1) && [[ -n "$pid" ]]; then
+  if pid=$(pgrep -ix "$name" 2>/dev/null | head -1) && [[ -n "$pid" ]]; then
     if binary_path=$(quit_lsof_app_binary "$pid") && [[ -n "$binary_path" ]]; then
       if bundle_path=$(quit_first_standard_bundle_walking_up "$binary_path") && [[ -n "$bundle_path" ]]; then
         QUIT_KIND=app
@@ -106,15 +107,21 @@ quit_resolve_target() {
   fi
 
   QUIT_KIND=process
-  QUIT_PROC_NAME="$name"
+  # Resolve correct case from a running process if possible
+  local _pid
+  if _pid=$(pgrep -ix "$name" 2>/dev/null | head -1) && [[ -n "$_pid" ]]; then
+    QUIT_PROC_NAME=$(ps -p "$_pid" -o comm= 2>/dev/null | xargs basename 2>/dev/null) || QUIT_PROC_NAME="$name"
+  else
+    QUIT_PROC_NAME="$name"
+  fi
   return 0
 }
 
 # True if a GUI app or process named like the bundle appears to be running.
 quit_running_p() {
   local n="$1"
-  pgrep -x "$n" &>/dev/null && return 0
-  pgrep -f "/${n}.app/Contents/MacOS/" &>/dev/null && return 0
+  pgrep -ix "$n" &>/dev/null && return 0
+  pgrep -if "/${n}.app/Contents/MacOS/" &>/dev/null && return 0
   return 1
 }
 
@@ -170,14 +177,14 @@ quit_process_graduated() {
   local name="$1"
   [[ -z "$name" ]] && die "quit: process name required"
 
-  if ! pgrep -x "$name" &>/dev/null; then
-    warn "No process with exact name \"$name\" (pgrep -x)."
+  if ! pgrep -ix "$name" &>/dev/null; then
+    warn "No process with exact name \"$name\" (pgrep -ix)."
   fi
 
   info "1/3 killall -INT (SIGINT)…"
   killall -INT "$name" &>/dev/null || true
   sleep 1
-  if ! pgrep -x "$name" &>/dev/null; then
+  if ! pgrep -ix "$name" &>/dev/null; then
     ok "\"$name\" is no longer running."
     return 0
   fi
@@ -185,7 +192,7 @@ quit_process_graduated() {
   info "2/3 killall (SIGTERM)…"
   killall "$name" &>/dev/null || true
   sleep 1
-  if ! pgrep -x "$name" &>/dev/null; then
+  if ! pgrep -ix "$name" &>/dev/null; then
     ok "\"$name\" is no longer running."
     return 0
   fi
@@ -193,7 +200,7 @@ quit_process_graduated() {
   info "3/3 killall -9 (SIGKILL)…"
   killall -9 "$name" &>/dev/null || true
   sleep 1
-  if ! pgrep -x "$name" &>/dev/null; then
+  if ! pgrep -ix "$name" &>/dev/null; then
     ok "\"$name\" is no longer running."
     return 0
   fi
