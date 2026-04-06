@@ -13,4 +13,4 @@ This **`lib/`** belongs to the **`quit`** project only. It is **not** the same a
 - The **`quit`** entrypoint (e.g. under **`~/bin`**) sources **`"${HOME}/lib/common.sh"`** first, then loads this project’s `quit.sh` by path relative to the `quit` install.
 - Other scripts should **not** source `quit/lib/quit.sh` unless they are part of this project.
 
-Home-wide layout ( **`~/lib`** vs **`~/bin/lib`** vs **`~/bin/bundled`** ): **`$HOME/docs/shared-shell-library.md`**.
+Home-wide layout ( **`~/lib`** vs **`~/bin/lib`** vs **`~/bin/bundled`** ): **`$HOME/software/common-lib/docs/shared-shell-library.md`** (pointer: **`$HOME/docs/shared-shell-library.md`**).
