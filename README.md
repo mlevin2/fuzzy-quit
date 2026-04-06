@@ -9,6 +9,7 @@ macOS helper to stop applications and command-line processes with **graduated es
 - macOS
 - Bash
 - Shared logging helpers in **`$HOME/lib/common.sh`** (from the [`common-lib`](../common-lib/) project; `~/lib` is usually a symlink there)
+- Project-local Bash helpers in **`lib/`** — see [`lib/README.md`](lib/README.md) (not the same as **`~/lib`**)
 
 ## Install
 
