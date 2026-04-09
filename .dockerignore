@@ -1,0 +1,4 @@
+# Keep build context small if the Dockerfile gains COPY steps later.
+.git
+.github
+.cursor

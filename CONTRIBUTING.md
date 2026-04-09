@@ -7,6 +7,7 @@ Thanks for helping improve **Fuzzy Quit** (`fuzzy-quit`).
 - **Shell**: Bash 3.2+ (macOS `/bin/bash` is fine). Prefer POSIX-friendly patterns where practical.
 - **Lint**: From the repository root run `bash scripts/shellcheck.sh` (requires [shellcheck](https://github.com/koalaman/shellcheck) on `PATH`).
 - **Tests**: Run `bash tests/run.sh`. **macOS** runs the full suite; **Linux** skips `test-case-insensitive.sh` (bundle paths / Finder apps). CI runs both.
+- **Linux in Docker** (same packages as CI): from the repo root, `docker compose run --rm test-linux` (see **README** → *Running the tests* → *Linux (Docker)*).
 
 ## Pull requests
 

@@ -176,6 +176,23 @@ bash scripts/shellcheck.sh
 
 `tests/test-case-insensitive.sh` sets **`QUIT_SKIP_SYSTEM_EVENTS=1`** and runs **only on macOS**. On Linux, **`tests/run.sh`** skips it automatically. The runner discovers every **`tests/test-*.sh`** file.
 
+### Linux (Docker)
+
+To match **GitHub Actions** Linux CI without a native Linux host, use Docker Compose from the repository root (Docker Compose **v2** plugin: `docker compose …`):
+
+```bash
+docker compose run --rm test-linux
+```
+
+That runs **`scripts/shellcheck.sh`** and **`tests/run.sh`** inside an **Ubuntu 24.04** image with the same **`apt`** packages as [`.github/workflows/ci-linux.yml`](.github/workflows/ci-linux.yml). The tree is bind-mounted read-only at **`/src`**.
+
+Shellcheck only, or tests only:
+
+```bash
+docker compose run --rm test-linux bash scripts/shellcheck.sh
+docker compose run --rm test-linux bash tests/run.sh
+```
+
 ## Manual smoke checklist (before a release)
 
 Run once on a real Mac with your usual shell:
@@ -205,11 +222,13 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
 | `scripts/shellcheck.sh` | Local shellcheck driver |
 | `.github/workflows/ci-macos.yml` | **macOS** CI (shellcheck + full tests) |
 | `.github/workflows/ci-linux.yml` | **Linux** CI (shellcheck + tests; skips macOS-only file) |
+| `docker/Dockerfile` | **Linux** test image (Ubuntu + shellcheck + `psmisc` / `procps`) |
+| `docker-compose.yml` | **`docker compose run --rm test-linux`** — local Linux parity with CI |
 
 ## Release checklist (maintainers)
 
 1. Bump **`VERSION`** and tag (`v0.1.0`).
-2. Run **`bash scripts/shellcheck.sh`** and **`bash tests/run.sh`** on macOS.
+2. Run **`bash scripts/shellcheck.sh`** and **`bash tests/run.sh`** on macOS (or **`docker compose run --rm test-linux`** for Linux parity).
 3. Run the **manual smoke** list above.
 4. Ensure **`LICENSE`** copyright year / holder is correct for your legal needs (see note below).
 

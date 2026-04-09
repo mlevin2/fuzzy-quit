@@ -1,0 +1,13 @@
+# Linux parity checks (shellcheck + tests/run.sh). Mounts the repo read-only at /src.
+# Usage: docker compose run --rm test-linux
+services:
+  test-linux:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: fuzzy-quit-test-linux:local
+    pull_policy: build
+    init: true
+    working_dir: /src
+    volumes:
+      - .:/src:ro
