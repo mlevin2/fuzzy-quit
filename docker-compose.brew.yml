@@ -1,0 +1,20 @@
+# Smoke-test `brew install fuzzy-quit` in isolation (does not use your host PATH).
+# Usage: docker compose -f docker-compose.brew.yml run --rm homebrew-smoke
+# Or:    bash scripts/test-homebrew-docker.sh
+services:
+  homebrew-smoke:
+    image: ghcr.io/homebrew/brew:latest
+    pull_policy: missing
+    environment:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_ANALYTICS: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -euo pipefail
+        brew tap mlevin2/tap
+        brew install fuzzy-quit
+        quit --version
+        quit --help >/dev/null

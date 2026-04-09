@@ -18,7 +18,7 @@ jobs:
       - name: shellcheck
         run: |
           set -euo pipefail
-          shellcheck -x quit lib/log.sh lib/quit.sh scripts/test-linux-docker.sh tests/run.sh
+          shellcheck -x quit lib/log.sh lib/quit.sh scripts/test-linux-docker.sh scripts/test-homebrew-docker.sh tests/run.sh
           for f in tests/test-*.sh; do
             shellcheck -x "$f"
           done

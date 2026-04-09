@@ -43,6 +43,14 @@ brew install fuzzy-quit
 
 Formula: [`mlevin2/homebrew-tap`](https://github.com/mlevin2/homebrew-tap). Upgrades: `brew upgrade fuzzy-quit`.
 
+**Try the formula without touching your dev `quit`:** use Docker and the official Homebrew image. The container needs **working DNS / outbound HTTPS** (GitHub, `formulae.brew.sh`, caches); first run can take a few minutes.
+
+```bash
+bash scripts/test-homebrew-docker.sh
+```
+
+Same thing via Compose: `docker compose -f docker-compose.brew.yml run --rm homebrew-smoke`.
+
 ### From source
 
 Clone the repository (forks: swap the owner in the URL):
@@ -257,6 +265,8 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
 | `docker/Dockerfile` | **Linux** test image (Ubuntu + shellcheck + `psmisc` / `procps`) |
 | `docker-compose.yml` | **`docker compose run --rm test-linux`** — local Linux parity with CI |
 | `scripts/test-linux-docker.sh` | Wrapper: runs Compose **test-linux** from repo root |
+| `docker-compose.brew.yml` | **`homebrew-smoke`** — `brew install fuzzy-quit` inside Homebrew’s image |
+| `scripts/test-homebrew-docker.sh` | Wrapper: **brew** smoke test in Docker (no host install) |
 | `Makefile` | **`make test-linux`** (and **test-linux-shellcheck** / **test-linux-tests**) |
 | `CHANGELOG.md` | Release notes ([Keep a Changelog](https://keepachangelog.com/)) |
 | `.github/workflows/release.yml` | On **`v*`** tag push: verify **`VERSION`**, create **GitHub Release** |
