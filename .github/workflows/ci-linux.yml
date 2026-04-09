@@ -1,0 +1,29 @@
+name: CI Linux
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck psmisc procps
+
+      - name: shellcheck
+        run: |
+          set -euo pipefail
+          shellcheck -x quit lib/log.sh lib/quit.sh tests/run.sh
+          for f in tests/test-*.sh; do
+            shellcheck -x "$f"
+          done
+
+      - name: Run test suite (macOS-specific tests skipped)
+        run: bash tests/run.sh

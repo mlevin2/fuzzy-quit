@@ -1,0 +1,27 @@
+name: CI macOS
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: brew install shellcheck
+
+      - name: shellcheck
+        run: |
+          set -euo pipefail
+          shellcheck -x quit lib/log.sh lib/quit.sh tests/run.sh
+          for f in tests/test-*.sh; do
+            shellcheck -x "$f"
+          done
+
+      - name: Run test suite
+        run: bash tests/run.sh

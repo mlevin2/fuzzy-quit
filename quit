@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
-# Quit targets: each argument is classified as a macOS app vs a plain process, then escalated.
-# Installed under ~/software/quit; symlink this file from ~/bin/quit.
+#
+# Copyright (c) 2026 Marshall Levin
+# SPDX-License-Identifier: MIT
+#
+# Fuzzy Quit — fuzzy/substring-aware quit for macOS (.app, AppleScript) and process-only elsewhere.
+# Repository: https://github.com/mlevin2/fuzzy-quit
+# Install this file as `quit` on your PATH (symlinks supported; see README).
 
 set -euo pipefail
 
-# Resolve project root when invoked via symlink (e.g. ~/bin/quit -> here).
+# Resolve install root when invoked via symlink (e.g. ~/bin/quit -> …/fuzzy-quit/quit).
+# BASH_SOURCE[0] is the path the user executed; we follow symlinks until we reach the real file,
+# then use its directory as FUZZY_QUIT_ROOT so lib/*.sh and VERSION load correctly.
 _quit_script="${BASH_SOURCE[0]}"
 while [[ -L "$_quit_script" ]]; do
   _quit_dir="$(cd "$(dirname "$_quit_script")" && pwd -P)"
@@ -12,40 +19,87 @@ while [[ -L "$_quit_script" ]]; do
   [[ "$_quit_link" != /* ]] && _quit_link="${_quit_dir}/${_quit_link}"
   _quit_script="$_quit_link"
 done
-QUIT_PROJECT_ROOT="$(cd "$(dirname "$_quit_script")" && pwd -P)"
+FUZZY_QUIT_ROOT="$(cd "$(dirname "$_quit_script")" && pwd -P)"
 unset _quit_script _quit_dir _quit_link
 
-# Shared helpers: "${HOME}/software/common-lib/README.md"
+if [[ "${1:-}" == "--version" ]] && [[ $# -eq 1 ]]; then
+  if [[ -r "${FUZZY_QUIT_ROOT}/VERSION" ]]; then
+    tr -d '[:space:]' < "${FUZZY_QUIT_ROOT}/VERSION"
+    echo
+  else
+    echo "unknown"
+  fi
+  exit 0
+fi
+
 # shellcheck disable=SC1091
-source "${HOME}/lib/common.sh"
-# This command: "${HOME}/software/quit/README.md"
+source "${FUZZY_QUIT_ROOT}/lib/log.sh"
 # shellcheck disable=SC1091
-source "${QUIT_PROJECT_ROOT}/lib/quit.sh"
+source "${FUZZY_QUIT_ROOT}/lib/quit.sh"
 
 usage() {
   cat >&2 <<'EOF'
-Usage: quit <target> [<target>...]
+Usage: quit [<options>] [<target>...]
+       quit [<options>] [--no-ps]
+       quit [<options>] --pick | -p [--no-ps]
+
+Options:
+  -h, --help           Show this help and exit.
+  --version            Print version and exit.
+  -n, --dry-run        Show how each target would be quit; no osascript or killall.
+  --confirm-sigkill    Prompt on /dev/tty before killall -9 (last resort).
+  --no-ps              Interactive list: omit ps(1) comm names (apps only).
+
+With no positional targets, or with only --pick / -p (and optional --no-ps), opens
+fzf multi-select when fzf is on PATH; otherwise prompts for targets line by line.
+
+On non-macOS systems there is no AppleScript or .app integration; targets use the
+process signal ladder only (see README).
 
 Each target is classified on its own (you do not need to type ".app"):
 
-  Application (AppleScript, then signals) if any of these hold:
-    • It is a path to an existing .app bundle directory
-    • A bundle named "<target>.app" exists under /Applications, ~/Applications,
+  Application (macOS only — AppleScript, then signals) if any of these hold:
+    • Path to an existing .app bundle directory
+    • A bundle named "<target>.app" under /Applications, ~/Applications,
       /System/Applications, or /Applications/Utilities
-    • A process with that exact name is running and its main binary lives in such a bundle
+    • A process with that exact name is running and its binary is in such a bundle
+    • Unambiguous case-insensitive substring among installed + running GUI app names
+      (if several match, you pick; fzf or select)
 
-  Otherwise it is treated as a plain process:
-    SIGINT → SIGTERM → SIGKILL (basename is used for paths)
+  Otherwise: plain process — SIGINT → SIGTERM → SIGKILL (substring on comm names
+  when unambiguous, same disambiguation rules).
 
 Examples:
   quit Safari node "/Applications/Slack.app"
+  quit --dry-run outlook
+  quit --confirm-sigkill stubborn_app
+  quit --no-ps
 EOF
   exit 0
 }
 
+# Sets QUIT_DRY_RUN, QUIT_CONFIRM_SIGKILL, QUIT_INTERACTIVE_INCLUDE_PS, _quit_filtered_args, _quit_want_help.
+quit_parse_cli_flags() {
+  QUIT_DRY_RUN=0
+  QUIT_CONFIRM_SIGKILL=0
+  QUIT_INTERACTIVE_INCLUDE_PS=1
+  _quit_want_help=0
+  _quit_filtered_args=()
+  local a
+  for a in "$@"; do
+    case "$a" in
+      -h | --help) _quit_want_help=1 ;;
+      --dry-run | -n) QUIT_DRY_RUN=1 ;;
+      --confirm-sigkill) QUIT_CONFIRM_SIGKILL=1 ;;
+      --no-ps) QUIT_INTERACTIVE_INCLUDE_PS=0 ;;
+      *) _quit_filtered_args+=("$a") ;;
+    esac
+  done
+}
+
 quit_one() {
   local arg="$1"
-  quit_resolve_target "$arg"
+  quit_resolve_target "$arg" || return 1
   echo >&2
   if [[ "$QUIT_KIND" == app ]]; then
     info "Application — $QUIT_APP_NAME ($arg)"
@@ -56,9 +110,34 @@ quit_one() {
   fi
 }
 
-if [[ $# -eq 0 ]] || [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+quit_parse_cli_flags "$@"
+if [[ "$_quit_want_help" -eq 1 ]]; then
   usage
 fi
+set -- "${_quit_filtered_args[@]}"
+unset _quit_filtered_args _quit_want_help
+
+export QUIT_DRY_RUN QUIT_CONFIRM_SIGKILL
+
+if [[ $# -eq 0 ]] || { [[ $# -eq 1 ]] && { [[ "${1:-}" == "--pick" ]] || [[ "${1:-}" == "-p" ]]; }; }; then
+  export QUIT_INTERACTIVE_INCLUDE_PS
+  if command -v fzf >/dev/null 2>&1; then
+    picks=$(quit_interactive_fzf_pick) || die "No selection."
+  else
+    if [[ "${QUIT_INTERACTIVE_INCLUDE_PS:-1}" == "0" ]]; then
+      warn "Ignoring --no-ps without fzf (you enter targets manually)."
+    fi
+    picks=$(quit_interactive_tty_targets) || die "No selection."
+  fi
+  rc=0
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    quit_one "$line" || rc=1
+  done <<< "$picks"
+  exit "$rc"
+fi
+
+unset QUIT_INTERACTIVE_INCLUDE_PS
 
 rc=0
 for target in "$@"; do

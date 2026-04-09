@@ -1,16 +1,10 @@
-# `quit/lib` — project-local library
+# `lib/` — Fuzzy Quit libraries
 
-This **`lib/`** belongs to the **`quit`** project only. It is **not** the same as **`~/lib`** (your home-wide `common.sh` symlink).
-
-## Contents
+Project-local Bash for the **`quit`** command. This is **not** a user-wide `~/lib`.
 
 | File | Role |
 |------|------|
-| `quit.sh` | Quit / escalation helpers for the `quit` command; expects **`common.sh`** logging (`info`, `warn`, …) to already be loaded. |
+| `log.sh` | Terminal colors and helpers: `info`, `warn`, `ok`, `err`, `die`, `hr`, `section`, `summary_bar` (MIT, vendored). |
+| `quit.sh` | Target classification and graduated quit logic; source **`log.sh`** first. |
 
-## How it is used
-
-- The **`quit`** entrypoint (e.g. under **`~/bin`**) sources **`"${HOME}/lib/common.sh"`** first, then loads this project’s `quit.sh` by path relative to the `quit` install.
-- Other scripts should **not** source `quit/lib/quit.sh` unless they are part of this project.
-
-Home-wide layout ( **`~/lib`** vs **`~/bin/lib`** vs **`~/bin/bundled`** ): **`$HOME/software/common-lib/docs/shared-shell-library.md`** (pointer: **`$HOME/docs/shared-shell-library.md`**).
+Optional environment variables are documented in the project **`README.md`**.

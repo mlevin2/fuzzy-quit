@@ -1,0 +1,19 @@
+# Contributing
+
+Thanks for helping improve **Fuzzy Quit** (`fuzzy-quit`).
+
+## Development
+
+- **Shell**: Bash 3.2+ (macOS `/bin/bash` is fine). Prefer POSIX-friendly patterns where practical.
+- **Lint**: From the repository root run `bash scripts/shellcheck.sh` (requires [shellcheck](https://github.com/koalaman/shellcheck) on `PATH`).
+- **Tests**: Run `bash tests/run.sh`. **macOS** runs the full suite; **Linux** skips `test-case-insensitive.sh` (bundle paths / Finder apps). CI runs both.
+
+## Pull requests
+
+1. Run **shellcheck** and the **full test suite** locally.
+2. Describe the behavior change and any new flags or environment variables.
+3. Update **README.md** if user-visible behavior changes.
+
+## License
+
+By contributing, you agree your contributions are licensed under the same terms as the project (**MIT** — see `LICENSE`).

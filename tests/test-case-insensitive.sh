@@ -10,9 +10,12 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
 
 # Source dependencies
 # shellcheck disable=SC1091
-source "${HOME}/lib/common.sh"
+source "${PROJECT_ROOT}/lib/log.sh"
 # shellcheck disable=SC1091
 source "${PROJECT_ROOT}/lib/quit.sh"
+
+# Avoid System Events / osascript in CI or headless runs (can block waiting for permissions).
+export QUIT_SKIP_SYSTEM_EVENTS=1
 
 passed=0
 failed=0
@@ -98,6 +101,19 @@ for variant in "Finder" "FINDER" "finder"; do
     (( ++failed )) || true
   fi
 done
+
+# ── quit_resolve_target — substring bundle match ─────────────────────
+
+section "quit_resolve_target — substring (installed app name)"
+
+if [[ -d "/System/Applications/Calculator.app" ]]; then
+  quit_resolve_target "calc"
+  assert_eq "resolve 'calc' → kind=app (substring)" "app" "$QUIT_KIND"
+  assert_eq "resolve 'calc' → Calculator" "Calculator" "$QUIT_APP_NAME"
+else
+  ok "  (skip) no /System/Applications/Calculator.app for substring test"
+  (( ++passed )) || true
+fi
 
 # Nonexistent process
 if quit_running_p "NoSuchProcessXyz123"; then
