@@ -2,6 +2,12 @@
 
 All notable changes to **Fuzzy Quit** are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **[INSTALL.md](INSTALL.md)** — Homebrew **keg** layout, upgrade/uninstall, `PATH` vs dev checkout, source and Docker smoke test; README badge linking to the tap.
+
 ## [0.1.0] - 2026-04-09
 
 ### Added

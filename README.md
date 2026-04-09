@@ -5,6 +5,7 @@
 [![CI macOS](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-macos.yml/badge.svg)](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-macos.yml)
 [![CI Linux](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-linux.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Homebrew tap](https://img.shields.io/badge/homebrew-mlevin2%2Ftap-555555?logo=homebrew)](https://github.com/mlevin2/homebrew-tap)
 
 **macOS and Linux:** Install and use the **same** `quit` command on **both** platforms. **Linux** (and other non-macOS Unix) focuses on **command-line processes** with the full **SIGINT → SIGTERM → SIGKILL** ladder. **macOS** adds **extra** capabilities on top of that: **`.app` GUI applications**, **AppleScript** / System Events where available, and richer matching against installed apps—details are in **Requirements** below.
 
@@ -13,6 +14,7 @@ The command you run is still named **`quit`** on your `PATH`; the repository and
 - **Upstream:** [github.com/mlevin2/fuzzy-quit](https://github.com/mlevin2/fuzzy-quit)
 - **License:** [MIT](LICENSE) — see `LICENSE` in the repository root.
 - **Contributing:** see [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Installing (Homebrew keg, source, Docker checks):** see [INSTALL.md](INSTALL.md).
 
 **GitHub topics** (for discoverability — GitHub allows **20** topics per repo; upstream is set with `gh repo edit --add-topic …`):  
 `macos` · `bash` · `shell-script` · `zsh` · `fzf` · `killall` · `pgrep` · `process-management` · `cli` · `automation` · `applescript` · `macos-apps` · `linux` · `signals` · `sigterm` · `sigkill` · `productivity` · `dotfiles` · `substring-matching` · `fuzzy-matching`  
@@ -32,49 +34,24 @@ All logging and TUI helpers are **vendored** in `lib/log.sh` (no external dotfil
 
 ## Install
 
-### Homebrew
+**Full guide (Homebrew keg layout, upgrade/uninstall, `PATH` with a dev checkout, Docker):** **[INSTALL.md](INSTALL.md)**.
 
-If you use [Homebrew](https://brew.sh/) (macOS or Linux):
-
-```bash
-brew tap mlevin2/tap
-brew install fuzzy-quit
-```
-
-Formula: [`mlevin2/homebrew-tap`](https://github.com/mlevin2/homebrew-tap). Upgrades: `brew upgrade fuzzy-quit`.
-
-**Try the formula without touching your dev `quit`:** use Docker and the official Homebrew image. The container needs **working DNS / outbound HTTPS** (GitHub, `formulae.brew.sh`, caches); first run can take a few minutes.
+**Homebrew** (macOS or Linux):
 
 ```bash
-bash scripts/test-homebrew-docker.sh
+brew install mlevin2/tap/fuzzy-quit
 ```
 
-Same thing via Compose: `docker compose -f docker-compose.brew.yml run --rm homebrew-smoke`.
-
-### From source
-
-Clone the repository (forks: swap the owner in the URL):
+**From source:**
 
 ```bash
-git clone https://github.com/mlevin2/fuzzy-quit.git
-cd fuzzy-quit
-chmod +x quit
+git clone https://github.com/mlevin2/fuzzy-quit.git && cd fuzzy-quit && chmod +x quit
+ln -sf "$(pwd)/quit" "$HOME/bin/quit"   # or any directory on your PATH; symlinks are supported
 ```
 
-Put **`quit`** on your `PATH`. A **symlink** is recommended and is fully supported:
+Confirm: `quit --version` and `quit --help`.
 
-```bash
-ln -sf "$(pwd)/quit" "$HOME/bin/quit"   # or any directory on your PATH
-```
-
-The driver resolves **`FUZZY_QUIT_ROOT`** by following symlinks from the path you executed (e.g. `~/bin/quit` → …/fuzzy-quit/quit), so `lib/*.sh` and **`VERSION`** always load from the real checkout.
-
-Confirm:
-
-```bash
-quit --version
-quit --help
-```
+**Try the Homebrew formula in Docker** (no host install): `bash scripts/test-homebrew-docker.sh` (see **INSTALL.md**).
 
 ## Usage (summary)
 
@@ -256,6 +233,7 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
 | `quit` | Entry script (install on `PATH` as `quit`) |
 | `VERSION` | Release version string for `--version` |
 | `LICENSE` | MIT |
+| `INSTALL.md` | **Homebrew keg**, source, Docker checks |
 | `lib/log.sh` | Colors, `info`/`warn`/…, `section`, `summary_bar` |
 | `lib/quit.sh` | Classification and escalation |
 | `tests/run.sh` | Runs all `tests/test-*.sh` |
