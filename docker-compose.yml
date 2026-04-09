@@ -1,5 +1,6 @@
 # Linux parity checks (shellcheck + tests/run.sh). Mounts the repo read-only at /src.
-# Usage: docker compose run --rm test-linux
+# Prefer: bash scripts/test-linux-docker.sh   or   make test-linux
+# Raw:     docker compose run --rm test-linux
 services:
   test-linux:
     build:

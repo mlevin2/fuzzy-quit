@@ -180,21 +180,35 @@ bash scripts/shellcheck.sh
 
 ### Linux (Docker)
 
-Use this when you are on **macOS** (or Windows) and want to exercise the **same** shellcheck + test steps as the Linux workflow **on your machine**, without installing Linux in a VM. The workflow on GitHub still runs independently; Docker is optional local parity.
+Use this when you are on **macOS** (or Windows) and want the **same** shellcheck + test steps as the Linux workflow **on your machine** (Docker + Docker Compose **v2**). The GitHub workflow still runs on push/PR; this is optional local parity.
 
-From the repository root (Docker Compose **v2**: `docker compose …`):
+**Recommended** — from anywhere (script `cd`s to the repo root):
+
+```bash
+bash scripts/test-linux-docker.sh
+```
+
+**Or** from the repository root:
+
+```bash
+make test-linux
+```
+
+Same checks, via Compose directly:
 
 ```bash
 docker compose run --rm test-linux
 ```
 
-That runs **`scripts/shellcheck.sh`** and **`tests/run.sh`** inside an **Ubuntu 24.04** image with the same **`apt`** packages as [`.github/workflows/ci-linux.yml`](.github/workflows/ci-linux.yml). The tree is bind-mounted read-only at **`/src`**.
+That runs **`scripts/shellcheck.sh`** then **`tests/run.sh`** in **Ubuntu 24.04** with the same **`apt`** packages as [`.github/workflows/ci-linux.yml`](.github/workflows/ci-linux.yml). The tree is bind-mounted read-only at **`/src`**.
 
-Shellcheck only, or tests only:
+Lint only, tests only, or custom command:
 
 ```bash
-docker compose run --rm test-linux bash scripts/shellcheck.sh
-docker compose run --rm test-linux bash tests/run.sh
+make test-linux-shellcheck
+make test-linux-tests
+bash scripts/test-linux-docker.sh bash scripts/shellcheck.sh
+bash scripts/test-linux-docker.sh bash tests/run.sh
 ```
 
 ## Manual smoke checklist (before a release)
@@ -228,11 +242,13 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
 | `.github/workflows/ci-linux.yml` | **Linux** CI (shellcheck + tests; skips macOS-only file) |
 | `docker/Dockerfile` | **Linux** test image (Ubuntu + shellcheck + `psmisc` / `procps`) |
 | `docker-compose.yml` | **`docker compose run --rm test-linux`** — local Linux parity with CI |
+| `scripts/test-linux-docker.sh` | Wrapper: runs Compose **test-linux** from repo root |
+| `Makefile` | **`make test-linux`** (and **test-linux-shellcheck** / **test-linux-tests**) |
 
 ## Release checklist (maintainers)
 
 1. Bump **`VERSION`** and tag (`v0.1.0`).
-2. Run **`bash scripts/shellcheck.sh`** and **`bash tests/run.sh`** on macOS (or **`docker compose run --rm test-linux`** for Linux parity).
+2. Run **`bash scripts/shellcheck.sh`** and **`bash tests/run.sh`** on macOS (or **`bash scripts/test-linux-docker.sh`** / **`make test-linux`** for Linux parity).
 3. Run the **manual smoke** list above.
 4. Ensure **`LICENSE`** copyright year / holder is correct for your legal needs (see note below).
 
