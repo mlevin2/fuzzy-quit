@@ -81,6 +81,8 @@ else
   child_sleep=$!
   name_sleep=$(basename "$sp")
 fi
+# Avoid bash job-control "Killed" noise when the child is SIGKILL'd during the ladder.
+disown "$child_sleep" 2>/dev/null || true
 
 for _ in $(seq 1 50); do
   if kill -0 "$child_sleep" 2>/dev/null && pgrep -ix "$name_sleep" &>/dev/null; then
@@ -144,6 +146,7 @@ else
   child_trap=$!
   name_trap=$(basename "$tp")
 fi
+disown "$child_trap" 2>/dev/null || true
 
 for _ in $(seq 1 50); do
   if kill -0 "$child_trap" 2>/dev/null && pgrep -ix "$name_trap" &>/dev/null; then

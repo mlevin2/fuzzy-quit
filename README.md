@@ -4,6 +4,7 @@
 
 [![CI macOS](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-macos.yml/badge.svg)](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-macos.yml)
 [![CI Linux](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-linux.yml/badge.svg)](https://github.com/mlevin2/fuzzy-quit/actions/workflows/ci-linux.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **macOS and Linux:** Install and use the **same** `quit` command on **both** platforms. **Linux** (and other non-macOS Unix) focuses on **command-line processes** with the full **SIGINT → SIGTERM → SIGKILL** ladder. **macOS** adds **extra** capabilities on top of that: **`.app` GUI applications**, **AppleScript** / System Events where available, and richer matching against installed apps—details are in **Requirements** below.
 
@@ -30,6 +31,19 @@ The command you run is still named **`quit`** on your `PATH`; the repository and
 All logging and TUI helpers are **vendored** in `lib/log.sh` (no external dotfiles library).
 
 ## Install
+
+### Homebrew
+
+If you use [Homebrew](https://brew.sh/) (macOS or Linux):
+
+```bash
+brew tap mlevin2/tap
+brew install fuzzy-quit
+```
+
+Formula: [`mlevin2/homebrew-tap`](https://github.com/mlevin2/homebrew-tap). Upgrades: `brew upgrade fuzzy-quit`.
+
+### From source
 
 Clone the repository (forks: swap the owner in the URL):
 
@@ -244,12 +258,23 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
 | `docker-compose.yml` | **`docker compose run --rm test-linux`** — local Linux parity with CI |
 | `scripts/test-linux-docker.sh` | Wrapper: runs Compose **test-linux** from repo root |
 | `Makefile` | **`make test-linux`** (and **test-linux-shellcheck** / **test-linux-tests**) |
+| `CHANGELOG.md` | Release notes ([Keep a Changelog](https://keepachangelog.com/)) |
+| `.github/workflows/release.yml` | On **`v*`** tag push: verify **`VERSION`**, create **GitHub Release** |
+| `.github/dependabot.yml` | Weekly **GitHub Actions** dependency PRs |
 
 ## Release checklist (maintainers)
 
-1. Bump **`VERSION`** and tag (`v0.1.0`).
+1. Update **`CHANGELOG.md`** and bump **`VERSION`** (Semantic Versioning).
 2. Run **`bash scripts/shellcheck.sh`** and **`bash tests/run.sh`** on macOS (or **`bash scripts/test-linux-docker.sh`** / **`make test-linux`** for Linux parity).
 3. Run the **manual smoke** list above.
-4. Ensure **`LICENSE`** copyright year / holder is correct for your legal needs (see note below).
+4. Commit, then tag and push (triggers the **Release** workflow and publishes notes):
+
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin main && git push origin vX.Y.Z
+   ```
+
+5. Update the **Homebrew** formula in [`mlevin2/homebrew-tap`](https://github.com/mlevin2/homebrew-tap): set **`url`** to the new tag archive and **`sha256`** (`curl -sL …/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256`).
+6. Ensure **`LICENSE`** copyright year / holder is correct for your legal needs (see note below).
 
 **Copyright:** `LICENSE` lists **Marshall Levin** (2026). Adjust if your situation requires a different legal notice.
