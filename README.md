@@ -162,7 +162,9 @@ Pickers use framed headers (`hr`, bold titles, dim hints). **fzf** uses rounded 
 
 ## Running the tests
 
-From the repository root (**full suite on macOS**; **Linux** runs all tests except `test-case-insensitive.sh`):
+**GitHub Actions** runs the **Linux** and **macOS** workflows on every push and pull request (see badges at the top of this file). You do not need Docker for CI—that is entirely on GitHub’s runners.
+
+Locally: from the repository root (**full suite on macOS**; **Linux** runs all tests except `test-case-insensitive.sh`):
 
 ```bash
 bash tests/run.sh
@@ -178,7 +180,9 @@ bash scripts/shellcheck.sh
 
 ### Linux (Docker)
 
-To match **GitHub Actions** Linux CI without a native Linux host, use Docker Compose from the repository root (Docker Compose **v2** plugin: `docker compose …`):
+Use this when you are on **macOS** (or Windows) and want to exercise the **same** shellcheck + test steps as the Linux workflow **on your machine**, without installing Linux in a VM. The workflow on GitHub still runs independently; Docker is optional local parity.
+
+From the repository root (Docker Compose **v2**: `docker compose …`):
 
 ```bash
 docker compose run --rm test-linux
