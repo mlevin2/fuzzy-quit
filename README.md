@@ -243,8 +243,11 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
 | `docker/Dockerfile` | **Linux** test image (Ubuntu + shellcheck + `psmisc` / `procps`) |
 | `docker-compose.yml` | **`docker compose run --rm test-linux`** — local Linux parity with CI |
 | `scripts/test-linux-docker.sh` | Wrapper: runs Compose **test-linux** from repo root |
-| `docker-compose.brew.yml` | **`homebrew-smoke`** — `brew install fuzzy-quit` inside Homebrew’s image |
-| `scripts/test-homebrew-docker.sh` | Wrapper: **brew** smoke test in Docker (no host install) |
+| `docker-compose.brew.yml` | **`homebrew-smoke`** — mount repo, run **`scripts/homebrew-smoke-inner.sh`** |
+| `docker/Dockerfile.homebrew-smoke` | **Optional** baked image for the same smoke (no bind mount) |
+| `scripts/homebrew-smoke-inner.sh` | Shared **brew tap/install** steps (Compose, Dockerfile, **brew-smoke** workflow) |
+| `scripts/test-homebrew-docker.sh` | Wrapper: **`make brew-smoke`** — Docker smoke (no host install) |
+| `.github/workflows/brew-smoke.yml` | **workflow_dispatch** + weekly: same smoke in Actions (not every push) |
 | `Makefile` | **`make test-linux`** (and **test-linux-shellcheck** / **test-linux-tests**) |
 | `CHANGELOG.md` | Release notes ([Keep a Changelog](https://keepachangelog.com/)) |
 | `.github/workflows/release.yml` | On **`v*`** tag push: verify **`VERSION`**, create **GitHub Release** |
@@ -262,7 +265,7 @@ This tool runs **`osascript`**, **`killall`**, and **`pgrep`**. It is aimed at *
    git push origin main && git push origin vX.Y.Z
    ```
 
-5. Update the **Homebrew** formula in [`mlevin2/homebrew-tap`](https://github.com/mlevin2/homebrew-tap): set **`url`** to the new tag archive and **`sha256`** (`curl -sL …/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256`).
+5. Update the **Homebrew** formula in [`mlevin2/homebrew-tap`](https://github.com/mlevin2/homebrew-tap): set **`url`** to the new tag archive and **`sha256`** (`curl -sL …/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256`). Optionally run **Actions → Brew smoke** (`workflow_dispatch`) or **`bash scripts/test-homebrew-docker.sh`** locally.
 6. Ensure **`LICENSE`** copyright year / holder is correct for your legal needs (see note below).
 
 **Copyright:** `LICENSE` lists **Marshall Levin** (2026). Adjust if your situation requires a different legal notice.

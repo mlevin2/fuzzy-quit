@@ -1,0 +1,26 @@
+# Smoke-test `brew install mlevin2/tap/fuzzy-quit` in the official Homebrew Linux image.
+# Not run on every push (slow + network); use workflow_dispatch or the weekly schedule.
+name: Brew smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 11 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  homebrew-smoke:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/homebrew/brew:latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_ANALYTICS: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tap, install, quit --version
+        run: bash scripts/homebrew-smoke-inner.sh

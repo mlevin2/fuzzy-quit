@@ -1,5 +1,5 @@
 # Local Linux parity with .github/workflows/ci-linux.yml (Docker required).
-.PHONY: test-linux test-linux-shellcheck test-linux-tests docker-build-linux
+.PHONY: test-linux test-linux-shellcheck test-linux-tests docker-build-linux brew-smoke brew-smoke-image
 
 # Default: shellcheck + tests/run.sh (matches CI Linux test job after checkout).
 test-linux:
@@ -13,3 +13,9 @@ test-linux-tests:
 
 docker-build-linux:
 	docker compose build test-linux
+
+brew-smoke:
+	bash scripts/test-homebrew-docker.sh
+
+brew-smoke-image:
+	docker build -f docker/Dockerfile.homebrew-smoke -t fuzzy-quit-brew-smoke .

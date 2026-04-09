@@ -7,6 +7,7 @@ All notable changes to **Fuzzy Quit** are documented here. The format is based o
 ### Added
 
 - **[INSTALL.md](INSTALL.md)** — Homebrew **keg** layout, upgrade/uninstall, `PATH` vs dev checkout, source and Docker smoke test; README badge linking to the tap.
+- **`scripts/homebrew-smoke-inner.sh`** — shared **brew** smoke (Compose mount, optional **`docker/Dockerfile.homebrew-smoke`**, **brew-smoke** GitHub workflow: manual + weekly).
 
 ## [0.1.0] - 2026-04-09
 

@@ -120,7 +120,36 @@ To exercise **`brew install fuzzy-quit`** **inside a container** (does not chang
 bash scripts/test-homebrew-docker.sh
 ```
 
-Requires Docker, outbound DNS/HTTPS, and a few minutes on first pull. See **[README.md](README.md)** and **`docker-compose.brew.yml`**.
+Requires Docker, outbound DNS/HTTPS, and a few minutes on first pull.
+
+### What runs (Compose vs Dockerfile vs CI)
+
+| Approach | Typical use |
+|----------|-------------|
+| **`docker-compose.brew.yml`** + bind mount | **Default.** Runs **`scripts/homebrew-smoke-inner.sh`** in **`ghcr.io/homebrew/brew`**; edit the script and re-run **without** rebuilding an image. |
+| **`docker/Dockerfile.homebrew-smoke`** | **Optional.** `COPY`s the inner script into the image; use when you prefer **`docker build` / `docker run`** with no mount (e.g. sharing a fixed image digest). Rebuild after script changes. |
+| **GitHub Actions `brew-smoke`** | **Optional.** Same script in the same upstream image; **not** on every push (slow, network). Runs on **workflow_dispatch** and **weekly**; use it to catch a broken tap after releases. |
+
+A separate Dockerfile is **not required** for respectability—many projects only use Compose or a raw **`docker run … bash -c '…'`**. Offering a thin Dockerfile is mainly for teams that standardize on **`docker build`** or want an immutable image tag.
+
+### Optional: build the smoke image yourself
+
+```bash
+docker build -f docker/Dockerfile.homebrew-smoke -t fuzzy-quit-brew-smoke .
+docker run --rm fuzzy-quit-brew-smoke
+```
+
+### Testing Homebrew on the host (local)
+
+If you are fine installing on your machine (and are not worried about colliding with a dev `quit` on **`PATH`**):
+
+```bash
+brew install mlevin2/tap/fuzzy-quit
+which -a quit
+quit --version
+```
+
+To prefer your checkout again, put its **`bin`** (or **`~/bin`**) **before** Homebrew’s **`bin`** in **`PATH`**, or **`brew uninstall fuzzy-quit`** when done.
 
 ---
 
