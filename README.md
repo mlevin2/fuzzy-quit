@@ -11,8 +11,9 @@ The command you run is still named **`quit`** on your `PATH`; the repository and
 - **License:** [MIT](LICENSE) — see `LICENSE` in the repository root.
 - **Contributing:** see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-**GitHub topics** (for discoverability — set under *Repository → About → Topics* or with `gh repo edit`):  
-`macos` · `bash` · `shell-script` · `zsh` · `fzf` · `killall` · `pgrep` · `process-management` · `cli` · `automation` · `applescript` · `macos-apps` · `linux` · `signals` · `sigterm` · `sigkill` · `productivity` · `dotfiles` · `terminal` · `substring-matching` · `fuzzy-matching`
+**GitHub topics** (for discoverability — GitHub allows **20** topics per repo; upstream is set with `gh repo edit --add-topic …`):  
+`macos` · `bash` · `shell-script` · `zsh` · `fzf` · `killall` · `pgrep` · `process-management` · `cli` · `automation` · `applescript` · `macos-apps` · `linux` · `signals` · `sigterm` · `sigkill` · `productivity` · `dotfiles` · `substring-matching` · `fuzzy-matching`  
+*(Use **Search keywords** below for extra terms like “terminal” that do not fit the topic cap.)*
 
 **Search keywords:** quit applications, kill processes, graduated kill, macOS quit app, AppleScript quit, `killall` wrapper, process picker, fuzzy process name, interactive quit, `fzf` process selection.
 
