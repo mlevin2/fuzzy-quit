@@ -1,6 +1,8 @@
 # Fuzzy Quit
 
-**Fuzzy Quit** (`fuzzy-quit`) is a small Bash tool that stops **GUI applications** (macOS `.app` bundles, with **AppleScript** where available) and **command-line processes** using **graduated escalation** (polite quit → stronger signals). It accepts **exact names**, **paths**, and **unambiguous fuzzy substrings** (with interactive disambiguation when needed).
+**Fuzzy Quit** (`fuzzy-quit`) is a small Bash tool that stops running software using **graduated escalation** (polite quit → stronger signals). It accepts **exact names**, **paths**, and **unambiguous fuzzy substrings** (with interactive disambiguation when needed).
+
+**macOS and Linux:** Install and use the **same** `quit` command on **both** platforms. **Linux** (and other non-macOS Unix) focuses on **command-line processes** with the full **SIGINT → SIGTERM → SIGKILL** ladder. **macOS** adds **extra** capabilities on top of that: **`.app` GUI applications**, **AppleScript** / System Events where available, and richer matching against installed apps—details are in **Requirements** below.
 
 The command you run is still named **`quit`** on your `PATH`; the repository and package name are **`fuzzy-quit`** so the project is easy to find on GitHub.
 
